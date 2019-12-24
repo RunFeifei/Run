@@ -3,8 +3,10 @@ package com.uestc.request.handler
 import android.content.Context
 import com.uestc.request.BuildConfig
 import com.uestc.request.cookie.CookieJar
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
@@ -44,12 +46,13 @@ class Request private constructor() {
     //todo 监测变化 重置
     private lateinit var headers: HeaderInterceptor
 
-    open fun init(context: Context, baseUrl: String, headers: HashMap<String, String>?) {
+    open fun init(context: Context, baseUrl: String, headers: HashMap<String, String>? = null) {
         this.appContext = context.applicationContext
         this.baseUrl = baseUrl
         this.headers = HeaderInterceptor()
-        headers ?: return
-        this.headers.put(headers)
+        headers?.apply {
+            this@Request.headers.put(this)
+        }
         init()
     }
 
@@ -64,9 +67,9 @@ class Request private constructor() {
             try {
                 val sslContext = SSLContext.getInstance("SSL")
                 sslContext.init(
-                    null,
-                    arrayOf(XTrustManager()),
-                    SecureRandom()
+                        null,
+                        arrayOf(XTrustManager()),
+                        SecureRandom()
                 )
                 val sslSocketFactory = sslContext.socketFactory
                 builder.sslSocketFactory(sslSocketFactory, XTrustManager())
@@ -76,20 +79,22 @@ class Request private constructor() {
                 throw RuntimeException(e)
             }
         }
-        return builder.addInterceptor(headers)
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
-            .cookieJar(CookieJar.getInstance())
-            .build()
+        return builder
+                .cache(Cache(appContext.cacheDir, 10 * 1024 * 1024L))
+                .addInterceptor(headers)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
+                .cookieJar(CookieJar.getInstance())
+                .build()
     }
 
     private fun initRetrofit(okHttp: OkHttpClient) {
         retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(JacksonConverterFactory.create())
-            .client(okHttp)
-            .build()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttp)
+                .build()
     }
 
     open fun put(key: String, value: String) {
