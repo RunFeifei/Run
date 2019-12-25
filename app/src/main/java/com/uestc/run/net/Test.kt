@@ -1,4 +1,4 @@
-package com.uestc.run.demo
+package com.uestc.run.net
 
 import retrofit2.http.GET
 

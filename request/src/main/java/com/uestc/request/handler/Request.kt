@@ -7,7 +7,6 @@ import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.jackson.JacksonConverterFactory
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
@@ -67,9 +66,9 @@ class Request private constructor() {
             try {
                 val sslContext = SSLContext.getInstance("SSL")
                 sslContext.init(
-                        null,
-                        arrayOf(XTrustManager()),
-                        SecureRandom()
+                    null,
+                    arrayOf(XTrustManager()),
+                    SecureRandom()
                 )
                 val sslSocketFactory = sslContext.socketFactory
                 builder.sslSocketFactory(sslSocketFactory, XTrustManager())
@@ -80,21 +79,21 @@ class Request private constructor() {
             }
         }
         return builder
-                .cache(Cache(appContext.cacheDir, 10 * 1024 * 1024L))
-                .addInterceptor(headers)
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .cookieJar(CookieJar.getInstance())
-                .build()
+            .cache(Cache(appContext.cacheDir, 10 * 1024 * 1024L))
+            .addInterceptor(headers)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .cookieJar(CookieJar.getInstance())
+            .build()
     }
 
     private fun initRetrofit(okHttp: OkHttpClient) {
         retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(okHttp)
-                .build()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttp)
+            .build()
     }
 
     open fun put(key: String, value: String) {

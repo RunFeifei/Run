@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
  * https://juejin.im/post/5d4d17e5f265da039401f6ea
  */
 
-inline fun <Response> api(viewModelScope: CoroutineScope, apiDSL: APIdsl<Response>.() -> Unit) {
+internal inline fun <Response> api(viewModelScope: CoroutineScope, apiDSL: APIdsl<Response>.() -> Unit) {
     APIdsl<Response>().apply(apiDSL).request(viewModelScope)
 }
 
@@ -53,8 +53,7 @@ class APIdsl<Response> {
         viewModelScope.launch(context = Dispatchers.Main) {
             onStart?.invoke()
             try {
-                val response = withContext(Dispatchers.IO)
-                {
+                val response = withContext(Dispatchers.IO) {
                     request()
                 }
                 onResponse?.invoke(response)

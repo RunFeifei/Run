@@ -1,57 +1,56 @@
 package com.uestc.request.model
 
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
 /**
  * Created by PengFeifei on 2019-12-24.
  */
-open class RequestViewModel : ViewModel(), OnRequest {
+open class RequestViewModel : ViewModel() {
 
-    protected fun <Response> api1(request: suspend () -> Response) {
+    open val apiException: MutableLiveData<Throwable> = MutableLiveData()
+    open val apiLoading: MutableLiveData<Boolean> = MutableLiveData()
+
+
+    @JvmOverloads
+    protected fun <Response> api(request: suspend () -> Response, onResponse: ((Response) -> Unit), onStart: (() -> Boolean)? = null, onError: (() -> Boolean)? = null, onFinally: (() -> Boolean)? = null) {
+
         api<Response>(viewModelScope) {
 
-            onStart {
-                Log.e("Thread-->", Thread.currentThread().name)
-                this@RequestViewModel.onStart()
-            }
-
             onRequest {
-                Log.e("Thread-->", Thread.currentThread().name)
                 request.invoke()
             }
 
             onResponse {
-                Log.e("Thread-->", Thread.currentThread().name)
+                onResponse.invoke(it)
+            }
+
+            onStart {
+                val override = onStart?.invoke()
+                if (override == null || !override) {
+                    apiLoading.value = true
+                }
             }
 
             onError {
-                Log.e("Thread-->", Thread.currentThread().name)
-                this@RequestViewModel.onError(it)
+                val override = onError?.invoke()
+                if (override == null || !override) {
+                    apiException.value = it
+                }
             }
 
             onFinally {
-                Log.e("Thread-->", Thread.currentThread().name)
-                this@RequestViewModel.onFinally()
+                val override = onFinally?.invoke()
+                if (override == null || !override) {
+                    apiLoading.value = false
+                }
             }
-
-
         }
     }
 
-    protected fun <Response> api2(apiDSL: APIdsl<Response>.() -> Unit) {
+    protected fun <Response> apiDSL(apiDSL: APIdsl<Response>.() -> Unit) {
         api(viewModelScope, apiDSL)
-    }
-
-
-    override fun onStart() {
-
-    }
-
-    override fun onError(exception: Exception) {
-    }
-
-    override fun onFinally() {
     }
 }
