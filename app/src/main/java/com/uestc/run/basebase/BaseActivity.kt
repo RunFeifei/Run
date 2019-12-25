@@ -43,12 +43,14 @@ abstract class BaseActivity<T : BaseViewModel> : AppCompatActivity(), IBaseView 
             }
         })
         initPage(savedInstanceState)
+        initLivedata(viewModel)
     }
 
 
     protected abstract fun initViewModel(): T
     protected abstract fun layoutId():Int
     protected abstract fun initPage(savedInstanceState: Bundle?)
+    protected abstract fun initLivedata(viewModel: T)
 
     /*****************************************************************************/
 

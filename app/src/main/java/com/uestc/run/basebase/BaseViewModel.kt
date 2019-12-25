@@ -1,7 +1,6 @@
 package com.uestc.run.basebase
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.uestc.request.model.RequestViewModel
 
 
@@ -37,7 +36,6 @@ open class BaseViewModel : RequestViewModel() {
     protected fun onFinally() {
         hideLoading()
     }
-
 
 
 }

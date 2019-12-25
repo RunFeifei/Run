@@ -1,6 +1,5 @@
 package com.uestc.request.model
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +14,13 @@ open class RequestViewModel : ViewModel() {
 
 
     @JvmOverloads
-    protected fun <Response> api(request: suspend () -> Response, onResponse: ((Response) -> Unit), onStart: (() -> Boolean)? = null, onError: (() -> Boolean)? = null, onFinally: (() -> Boolean)? = null) {
+    protected fun <Response> api(
+        request: suspend () -> Response,
+        onResponse: ((Response) -> Unit),
+        onStart: (() -> Boolean)? = null,
+        onError: (() -> Boolean)? = null,
+        onFinally: (() -> Boolean)? = null
+    ) {
 
         api<Response>(viewModelScope) {
 

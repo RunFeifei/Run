@@ -2,6 +2,9 @@ package com.uestc.run
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.google.gson.Gson
 import com.uestc.request.handler.Request
 import com.uestc.run.basebase.BaseActivity
@@ -22,6 +25,7 @@ class MainActivity : BaseActivity<TestViewModel>() {
         return R.layout.activity_main
     }
 
+
     override fun initPage(savedInstanceState: Bundle?) {
         Request.get().init(this, "https://www.wanandroid.com")
         test.setOnClickListener {
@@ -30,18 +34,26 @@ class MainActivity : BaseActivity<TestViewModel>() {
         test2.setOnClickListener {
             viewModel.loadCommon()
         }
+    }
 
+    override fun initLivedata(viewModel: TestViewModel) {
+        viewModel.liveData.observe(this, Observer {
+            Toast.makeText(this, Gson().toJson(it), Toast.LENGTH_SHORT).show()
+        })
     }
 }
 
 
 class TestViewModel : BaseViewModel() {
 
+    val liveData = MutableLiveData<WanResponse<List<Banner>>>()
+
 
     open fun loadDSL() {
         apiDSL<WanResponse<List<Banner>>> {
 
             onStart {
+                apiLoading.value = true
                 Log.e("Thread-->onStart", Thread.currentThread().name)
             }
 
@@ -51,8 +63,10 @@ class TestViewModel : BaseViewModel() {
             }
 
             onResponse {
+                apiLoading.value = false
                 Log.e("Thread-->onResponse", Thread.currentThread().name)
                 Log.e("onResponse-->", Gson().toJson(it))
+                liveData.value = it
             }
 
             onError {
@@ -70,6 +84,7 @@ class TestViewModel : BaseViewModel() {
         }, {
             Log.e("Thread-->onResponse", Thread.currentThread().name)
             Log.e("onResponse-->", Gson().toJson(it))
+            liveData.value = it
         })
 
     }
