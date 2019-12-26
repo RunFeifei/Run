@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.google.gson.Gson
 import com.uestc.request.handler.Request
+import com.uestc.request.model.Result
 import com.uestc.run.basebase.BaseActivity
 import com.uestc.run.basebase.BaseViewModel
 import com.uestc.run.net.Banner
@@ -15,6 +16,8 @@ import com.uestc.run.net.TestService
 import com.uestc.run.net.WanResponse
 import com.uestc.run.widget.get
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 class MainActivity : BaseActivity<TestViewModel>() {
 
@@ -36,7 +39,23 @@ class MainActivity : BaseActivity<TestViewModel>() {
             viewModel.loadCommon()
         }
         test3.setOnClickListener {
-            viewModel.loadLiveData()
+            viewModel.loadLiveData().observe(this, Observer {
+                when (it) {
+                    is Result.Error -> {
+
+                    }
+                    is Result.Response -> {
+                        Log.e("onResponse-->", Gson().toJson(it.response))
+                    }
+                    is Result.Start -> {
+                        Log.e("Start-->", Thread.currentThread().name)
+                    }
+                    is Result.Finally -> {
+                        Log.e("Finally-->", Thread.currentThread().name)
+                    }
+
+                }
+            })
         }
 
     }
@@ -51,6 +70,8 @@ class MainActivity : BaseActivity<TestViewModel>() {
 
 class TestViewModel : BaseViewModel() {
 
+    private val service by lazy { Request.apiService(TestService::class.java) }
+
     val liveData = MutableLiveData<WanResponse<List<Banner>>>()
 
 
@@ -64,7 +85,7 @@ class TestViewModel : BaseViewModel() {
 
             onRequest {
                 Log.e("Thread-->onRequest", Thread.currentThread().name)
-                Request.apiService(TestService::class.java).getBanner()
+                service.getBanner()
             }
 
             onResponse {
@@ -85,7 +106,7 @@ class TestViewModel : BaseViewModel() {
     open fun loadCommon() {
         api({
             Log.e("Thread-->onRequest", Thread.currentThread().name)
-            Request.apiService(TestService::class.java).getBanner()
+            service.getBanner()
         }, {
             Log.e("Thread-->onResponse", Thread.currentThread().name)
             Log.e("onResponse-->", Gson().toJson(it))
@@ -94,8 +115,12 @@ class TestViewModel : BaseViewModel() {
 
     }
 
-    open fun loadLiveData():LiveData<WanResponse<List<Banner>>> {
-       return apiLiveData(Request.apiService(TestService::class.java).getBanner())
+    open fun loadLiveData(): LiveData<Result<WanResponse<List<Banner>>>> {
+        return apiLiveData(context = SupervisorJob() + Dispatchers.Main.immediate, timeoutInMs = 2000) {
+            onRequest {
+                service.getBanner()
+            }
+        }
     }
 
 

@@ -68,3 +68,13 @@ class ViewModelDsl<Response> {
 
 
 }
+
+
+class LiveDatalDsl<Response> {
+
+    internal lateinit var request: suspend () -> Response
+
+    infix fun onRequest(request: suspend () -> Response) {
+        this.request = request
+    }
+}

@@ -1,12 +1,12 @@
 package com.uestc.request.model
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.Serializable
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -68,21 +68,24 @@ open class RequestViewModel : ViewModel() {
     }
 
     protected fun <Response> apiLiveData(
-        request: suspend () -> Response,
         context: CoroutineContext = EmptyCoroutineContext,
-        timeoutInMs: Long = 5000L
+        timeoutInMs: Long = 5000L,
+        apiDSL: LiveDatalDsl<Response>.() -> Unit
     ): LiveData<Result<Response>> {
 
         return androidx.lifecycle.liveData(context, timeoutInMs) {
             emit(Result.Start())
+            Log.e("Thread-->start", Thread.currentThread().name)
             try {
                 emit(withContext(Dispatchers.IO) {
-                    Result.Response(request.invoke())
+                    Log.e("Thread-->request", Thread.currentThread().name)
+                    Result.Response(LiveDatalDsl<Response>().apply(apiDSL).request())
                 })
             } catch (e: Exception) {
                 e.printStackTrace()
                 emit(Result.Error(e))
             } finally {
+                Log.e("Thread-->finally", Thread.currentThread().name)
                 emit(Result.Finally())
             }
         }
