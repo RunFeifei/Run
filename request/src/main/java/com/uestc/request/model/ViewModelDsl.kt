@@ -11,11 +11,11 @@ import kotlinx.coroutines.withContext
  * https://juejin.im/post/5d4d17e5f265da039401f6ea
  */
 
-internal inline fun <Response> api(viewModelScope: CoroutineScope, apiDSL: APIdsl<Response>.() -> Unit) {
-    APIdsl<Response>().apply(apiDSL).request(viewModelScope)
+internal inline fun <Response> api(viewModelScope: CoroutineScope, apiDSL: ViewModelDsl<Response>.() -> Unit) {
+    ViewModelDsl<Response>().apply(apiDSL).launch(viewModelScope)
 }
 
-class APIdsl<Response> {
+class ViewModelDsl<Response> {
 
     internal lateinit var request: suspend () -> Response
 
@@ -49,7 +49,7 @@ class APIdsl<Response> {
     }
 
 
-    fun request(viewModelScope: CoroutineScope) {
+    internal fun launch(viewModelScope: CoroutineScope) {
         viewModelScope.launch(context = Dispatchers.Main) {
             onStart?.invoke()
             try {
@@ -65,4 +65,6 @@ class APIdsl<Response> {
             }
         }
     }
+
+
 }

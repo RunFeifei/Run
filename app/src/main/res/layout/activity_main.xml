@@ -4,33 +4,48 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    >
 
     <TextView
         android:id="@+id/test"
         android:layout_width="300dp"
-        android:layout_height="200dp"
-        android:gravity="center"
-        android:layout_marginTop="50dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="10dp"
         android:background="#00ff00"
+        android:gravity="center"
         android:text="DSL"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
 
     <TextView
         android:id="@+id/test2"
         android:layout_width="300dp"
-        android:layout_height="200dp"
-        android:gravity="center"
-        android:background="#00ff00"
+        android:layout_height="150dp"
         android:layout_marginTop="50dp"
+        android:background="#00ff00"
+        android:gravity="center"
         android:text="Common"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/test"
         />
+
+    <TextView
+        android:id="@+id/test3"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="50dp"
+        android:background="#00ff00"
+        android:gravity="center"
+        android:text="LiveData"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/test2"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

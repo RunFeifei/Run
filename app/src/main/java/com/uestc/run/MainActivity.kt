@@ -3,6 +3,7 @@ package com.uestc.run
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.google.gson.Gson
@@ -34,6 +35,10 @@ class MainActivity : BaseActivity<TestViewModel>() {
         test2.setOnClickListener {
             viewModel.loadCommon()
         }
+        test3.setOnClickListener {
+            viewModel.loadLiveData()
+        }
+
     }
 
     override fun initLivedata(viewModel: TestViewModel) {
@@ -87,6 +92,10 @@ class TestViewModel : BaseViewModel() {
             liveData.value = it
         })
 
+    }
+
+    open fun loadLiveData():LiveData<WanResponse<List<Banner>>> {
+       return apiLiveData(Request.apiService(TestService::class.java).getBanner())
     }
 
 

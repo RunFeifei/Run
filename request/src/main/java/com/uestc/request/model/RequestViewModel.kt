@@ -1,11 +1,19 @@
 package com.uestc.request.model
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.Serializable
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Created by PengFeifei on 2019-12-24.
+ *
+ * https://developer.android.google.cn/topic/libraries/architecture/coroutines#livedata
  */
 open class RequestViewModel : ViewModel() {
 
@@ -22,7 +30,7 @@ open class RequestViewModel : ViewModel() {
         onFinally: (() -> Boolean)? = null
     ) {
 
-        api<Response>(viewModelScope) {
+        apiDSL<Response> {
 
             onRequest {
                 request.invoke()
@@ -55,7 +63,36 @@ open class RequestViewModel : ViewModel() {
         }
     }
 
-    protected fun <Response> apiDSL(apiDSL: APIdsl<Response>.() -> Unit) {
+    protected fun <Response> apiDSL(apiDSL: ViewModelDsl<Response>.() -> Unit) {
         api(viewModelScope, apiDSL)
     }
+
+    protected fun <Response> apiLiveData(
+        request: suspend () -> Response,
+        context: CoroutineContext = EmptyCoroutineContext,
+        timeoutInMs: Long = 5000L
+    ): LiveData<Result<Response>> {
+
+        return androidx.lifecycle.liveData(context, timeoutInMs) {
+            emit(Result.Start())
+            try {
+                emit(withContext(Dispatchers.IO) {
+                    Result.Response(request.invoke())
+                })
+            } catch (e: Exception) {
+                e.printStackTrace()
+                emit(Result.Error(e))
+            } finally {
+                emit(Result.Finally())
+            }
+        }
+    }
+}
+
+
+sealed class Result<T> {
+    class Start<T> : Result<T>()
+    class Finally<T> : Result<T>()
+    data class Response<T>(val response: T) : Result<T>()
+    data class Error<T>(val exception: Exception) : Result<T>()
 }
