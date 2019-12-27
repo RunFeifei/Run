@@ -146,7 +146,7 @@ public class CookieJar extends PersistentCookieJar {
     }
 
     private SharedPreferences getSharedPreferences() {
-        final Context context = Request.Companion.get().appContext;
+        final Context context = Request.appContext;
         return context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
     }
 

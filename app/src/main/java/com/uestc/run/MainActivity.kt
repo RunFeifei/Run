@@ -31,7 +31,19 @@ class MainActivity : BaseActivity<TestViewModel>() {
 
 
     override fun initPage(savedInstanceState: Bundle?) {
-        Request.init(this, "https://www.wanandroid.com")
+        Request.init(this, "https://www.wanandroid.com") {
+            okHttp {
+                //配置okhttp
+                it
+            }
+
+            retrofit {
+                //配置retrofit
+                it
+            }
+        }
+
+
         test.setOnClickListener {
             viewModel.loadDSL()
         }
@@ -42,15 +54,18 @@ class MainActivity : BaseActivity<TestViewModel>() {
             viewModel.loadLiveData().observe(this, Observer {
                 when (it) {
                     is Result.Error -> {
-
+                        hideLoading()
                     }
                     is Result.Response -> {
+                        hideLoading()
                         it.response.apply {
                             Log.e("onResponse-->", Gson().toJson(this))
+                            showToast(Gson().toJson(it))
                         }
                     }
                     is Result.Start -> {
                         Log.e("Start-->", Thread.currentThread().name)
+                        showLoading()
                     }
                     is Result.Finally -> {
                         Log.e("Finally-->", Thread.currentThread().name)
@@ -64,7 +79,7 @@ class MainActivity : BaseActivity<TestViewModel>() {
 
     override fun initLivedata(viewModel: TestViewModel) {
         viewModel.liveData.observe(this, Observer {
-            Toast.makeText(this, Gson().toJson(it), Toast.LENGTH_SHORT).show()
+            showToast(Gson().toJson(it))
         })
     }
 }

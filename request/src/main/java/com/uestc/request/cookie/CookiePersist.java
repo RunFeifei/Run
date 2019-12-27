@@ -68,6 +68,6 @@ public class CookiePersist implements CookiePersistor {
 
 
     private SharedPreferences getSharedPreferences() {
-        return  Request.Companion.get().appContext.getSharedPreferences(NAME, Context.MODE_PRIVATE);
+        return  Request.appContext.getSharedPreferences(NAME, Context.MODE_PRIVATE);
     }
 }
