@@ -17,17 +17,19 @@ import javax.net.ssl.SSLSession
  */
 object Request {
 
-    private lateinit var retrofit: Retrofit
     internal lateinit var appContext: Context
-    private lateinit var baseUrl: String
 
-    //todo 监测变化 重置
+    private lateinit var retrofit: Retrofit
+    private lateinit var baseUrl: String
     private lateinit var headers: HeaderInterceptor
+
+    private var requestDSL: (RequestDsl.() -> Unit)? = null
 
     @JvmOverloads
     fun init(context: Context, baseUrl: String, requestDSL: (RequestDsl.() -> Unit)? = null) {
         this.appContext = context.applicationContext
         this.baseUrl = baseUrl
+        this.requestDSL = requestDSL
         this.headers = HeaderInterceptor()
         init(requestDSL)
     }
@@ -78,8 +80,19 @@ object Request {
         return retrofit.create(service)
     }
 
-    fun put(key: String, value: String) {
+    fun resetBaseUrl(newValue: String): Boolean {
+        val isOK = !newValue.isBlank() && (baseUrl.startsWith("http://") || baseUrl.startsWith("https://"))
+        check(isOK) { "baseUrl is illegal: $baseUrl" }
+        val isChanged = isOK && baseUrl != newValue
+        if (isChanged) {
+            init(appContext, newValue, requestDSL)
+        }
+        return isChanged
+    }
+
+    fun putHead(key: String, value: String): HeaderInterceptor {
         headers.put(key, value)
+        return headers
     }
 
 }
