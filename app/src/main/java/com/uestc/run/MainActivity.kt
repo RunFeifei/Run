@@ -36,7 +36,7 @@ class MainActivity : BaseActivity<TestViewModel>() {
             viewModel.loadDSL()
         }
         test2.setOnClickListener {
-            viewModel.loadCommon()
+            viewModel.loadCallback()
         }
         test3.setOnClickListener {
             viewModel.loadLiveData().observe(this, Observer {
@@ -81,6 +81,7 @@ class TestViewModel : BaseViewModel() {
             onStart {
                 apiLoading.value = true
                 Log.e("Thread-->onStart", Thread.currentThread().name)
+                false
             }
 
             onRequest {
@@ -96,15 +97,17 @@ class TestViewModel : BaseViewModel() {
             }
 
             onError {
+                it.printStackTrace()
                 Log.e("Thread-->onError", Thread.currentThread().name)
+                false
             }
 
         }
 
     }
 
-    open fun loadCommon() {
-        api({
+    open fun loadCallback() {
+        apiCallback({
             Log.e("Thread-->onRequest", Thread.currentThread().name)
             service.getBanner()
         }, {
@@ -118,6 +121,7 @@ class TestViewModel : BaseViewModel() {
     open fun loadLiveData(): LiveData<Result<WanResponse<List<Banner>>>> {
         return apiLiveData(context = SupervisorJob() + Dispatchers.Main.immediate, timeoutInMs = 2000) {
             onRequest {
+                Log.e("Thread-->onRequest", Thread.currentThread().name)
                 service.getBanner()
             }
         }

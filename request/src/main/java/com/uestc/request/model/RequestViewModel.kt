@@ -1,6 +1,5 @@
 package com.uestc.request.model
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,8 +20,12 @@ open class RequestViewModel : ViewModel() {
     open val apiLoading: MutableLiveData<Boolean> = MutableLiveData()
 
 
+    private fun <Response> api(apiDSL: ViewModelDsl<Response>.() -> Unit) {
+        api(viewModelScope, apiDSL)
+    }
+
     @JvmOverloads
-    protected fun <Response> api(
+    protected fun <Response> apiCallback(
         request: suspend () -> Response,
         onResponse: ((Response) -> Unit),
         onStart: (() -> Boolean)? = null,
@@ -30,7 +33,7 @@ open class RequestViewModel : ViewModel() {
         onFinally: (() -> Boolean)? = null
     ) {
 
-        apiDSL<Response> {
+        api<Response> {
 
             onRequest {
                 request.invoke()
@@ -43,52 +46,101 @@ open class RequestViewModel : ViewModel() {
             onStart {
                 val override = onStart?.invoke()
                 if (override == null || !override) {
-                    apiLoading.value = true
+                    onApiStart()
                 }
+                false
             }
 
             onError {
                 val override = onError?.invoke()
                 if (override == null || !override) {
-                    apiException.value = it
+                    onApiError(it)
                 }
+                false
+
             }
 
             onFinally {
                 val override = onFinally?.invoke()
                 if (override == null || !override) {
-                    apiLoading.value = false
+                    onApiFinally()
                 }
+                false
             }
         }
     }
 
     protected fun <Response> apiDSL(apiDSL: ViewModelDsl<Response>.() -> Unit) {
-        api(viewModelScope, apiDSL)
+        api<Response> {
+            onRequest {
+                ViewModelDsl<Response>().apply(apiDSL).request()
+            }
+
+            onResponse {
+                ViewModelDsl<Response>().apply(apiDSL).onResponse?.invoke(it)
+            }
+
+            onStart {
+                val override = ViewModelDsl<Response>().apply(apiDSL).onStart?.invoke()
+                if (override == null || !override) {
+                    onApiStart()
+                }
+                override
+            }
+
+            onError { error ->
+                val override = ViewModelDsl<Response>().apply(apiDSL).onError?.invoke(error)
+                if (override == null || !override) {
+                    onApiError(error)
+                }
+                override
+
+            }
+
+            onFinally {
+                val override = ViewModelDsl<Response>().apply(apiDSL).onFinally?.invoke()
+                if (override == null || !override) {
+                    onApiFinally()
+                }
+                override
+            }
+        }
     }
 
     protected fun <Response> apiLiveData(
         context: CoroutineContext = EmptyCoroutineContext,
-        timeoutInMs: Long = 5000L,
+        timeoutInMs: Long = 3000L,
         apiDSL: LiveDatalDsl<Response>.() -> Unit
     ): LiveData<Result<Response>> {
 
         return androidx.lifecycle.liveData(context, timeoutInMs) {
             emit(Result.Start())
-            Log.e("Thread-->start", Thread.currentThread().name)
             try {
                 emit(withContext(Dispatchers.IO) {
-                    Log.e("Thread-->request", Thread.currentThread().name)
                     Result.Response(LiveDatalDsl<Response>().apply(apiDSL).request())
                 })
             } catch (e: Exception) {
                 e.printStackTrace()
                 emit(Result.Error(e))
             } finally {
-                Log.e("Thread-->finally", Thread.currentThread().name)
                 emit(Result.Finally())
             }
         }
+    }
+
+    protected fun onApiStart() {
+        apiLoading.value = true
+    }
+
+    protected fun onApiError(e: Exception?) {
+        apiLoading.value = false
+        apiException.value = e
+
+    }
+
+    protected fun onApiFinally() {
+        apiLoading.value = false
+
     }
 }
 
