@@ -6,7 +6,9 @@ a.DSL方式的请求，自由处理各种start、response、error回调,或者�
 
 b.回调方式请求，自由处理各种start、response、error回调,或者交给BaseViewModel统一处理  
 
-c.LiveData方式请求,请求直接返回LiveData
+c.LiveData方式请求,请求直接返回LiveData  
+
+d.DSL方式灵活配置OkHttpClient/Retrofit
 
 ### 技术栈
 
