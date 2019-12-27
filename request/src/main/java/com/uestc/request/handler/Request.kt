@@ -9,8 +9,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.security.SecureRandom
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSession
 
 /**
  * Created by PengFeifei on 2019-12-23.
@@ -50,7 +50,9 @@ object Request {
                 )
                 val sslSocketFactory = sslContext.socketFactory
                 builder.sslSocketFactory(sslSocketFactory, XTrustManager())
-                builder.hostnameVerifier { _: String?, _: SSLSession? -> true }
+                builder.hostnameVerifier(HostnameVerifier { hostname, session ->
+                    true
+                })
                 builder.addNetworkInterceptor(LoggingInterceptor())
             } catch (e: Exception) {
                 throw RuntimeException(e)
