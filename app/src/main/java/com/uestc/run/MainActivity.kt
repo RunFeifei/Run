@@ -31,7 +31,7 @@ class MainActivity : BaseActivity<TestViewModel>() {
 
 
     override fun initPage(savedInstanceState: Bundle?) {
-        Request.get().init(this, "https://www.wanandroid.com")
+        Request.init(this, "https://www.wanandroid.com")
         test.setOnClickListener {
             viewModel.loadDSL()
         }

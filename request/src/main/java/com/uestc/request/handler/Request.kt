@@ -15,37 +15,16 @@ import javax.net.ssl.SSLSession
 /**
  * Created by PengFeifei on 2019-12-23.
  */
-class Request private constructor() {
-
-
-    companion object {
-        private var instance: Request? = null
-            get() {
-                if (field == null) {
-                    field = Request()
-                }
-                return field
-            }
-
-        open fun get(): Request {
-            return instance!!
-        }
-
-        open fun <Service> apiService(service: Class<Service>): Service {
-            return get().retrofit.create(service)
-        }
-    }
-
+object Request {
 
     private lateinit var retrofit: Retrofit
-
-    internal lateinit var appContext: Context
-    internal lateinit var baseUrl: String
+    private lateinit var appContext: Context
+    private lateinit var baseUrl: String
 
     //todo 监测变化 重置
     private lateinit var headers: HeaderInterceptor
 
-    open fun init(context: Context, baseUrl: String, headers: HashMap<String, String>? = null) {
+    fun init(context: Context, baseUrl: String, headers: HashMap<String, String>? = null) {
         this.appContext = context.applicationContext
         this.baseUrl = baseUrl
         this.headers = HeaderInterceptor()
@@ -96,8 +75,11 @@ class Request private constructor() {
             .build()
     }
 
-    open fun put(key: String, value: String) {
-        headers.put(key, value)
+    fun <Service> apiService(service: Class<Service>): Service {
+        return retrofit.create(service)
     }
 
+    fun put(key: String, value: String) {
+        headers.put(key, value)
+    }
 }
