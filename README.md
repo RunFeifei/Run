@@ -2,13 +2,15 @@
 
 ### 点
 
-a.DSL方式的请求，自由处理各种start、response、error回调
+a.DSL方式的请求，自由处理各种start、response、error回调,或者交给BaseViewModel统一处理  
 
-b.普通方式请求，在支持自由处理回调的同时，也可交给base统一处理回调和错误监测
+b.回调方式请求，自由处理各种start、response、error回调,或者交给BaseViewModel统一处理  
+
+c.LiveData方式请求,请求直接返回LiveData
 
 ### 技术栈
 
-Kotlin 协程Coroutines ViewModel&LiveData OkHttp&Retrofit DSL
+Kotlin 协程Coroutines ViewModel-ktx&LiveData-ktx OkHttp&Retrofit DSL
 
 ### 感谢  
 WanAndroid提供的API  
