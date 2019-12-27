@@ -45,7 +45,9 @@ class MainActivity : BaseActivity<TestViewModel>() {
 
                     }
                     is Result.Response -> {
-                        Log.e("onResponse-->", Gson().toJson(it.response))
+                        it.response.apply {
+                            Log.e("onResponse-->", Gson().toJson(this))
+                        }
                     }
                     is Result.Start -> {
                         Log.e("Start-->", Thread.currentThread().name)

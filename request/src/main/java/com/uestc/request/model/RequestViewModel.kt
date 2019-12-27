@@ -144,7 +144,10 @@ open class RequestViewModel : ViewModel() {
     }
 }
 
-
+/**
+ * Result必须加泛型 不然response的泛型就会被擦除!!
+ * damn it
+ */
 sealed class Result<T> {
     class Start<T> : Result<T>()
     class Finally<T> : Result<T>()
