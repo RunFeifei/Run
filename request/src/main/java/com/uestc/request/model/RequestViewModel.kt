@@ -21,7 +21,7 @@ open class RequestViewModel : ViewModel() {
 
 
     private fun <Response> api(apiDSL: ViewModelDsl<Response>.() -> Unit) {
-        api(viewModelScope, apiDSL)
+        ViewModelDsl<Response>().apply(apiDSL).launch(viewModelScope)
     }
 
     @JvmOverloads
@@ -110,14 +110,14 @@ open class RequestViewModel : ViewModel() {
     protected fun <Response> apiLiveData(
         context: CoroutineContext = EmptyCoroutineContext,
         timeoutInMs: Long = 3000L,
-        apiDSL: LiveDatalDsl<Response>.() -> Unit
+        apiDSL: LiveDataDsl<Response>.() -> Unit
     ): LiveData<Result<Response>> {
 
         return androidx.lifecycle.liveData(context, timeoutInMs) {
             emit(Result.Start())
             try {
                 emit(withContext(Dispatchers.IO) {
-                    Result.Response(LiveDatalDsl<Response>().apply(apiDSL).request())
+                    Result.Response(LiveDataDsl<Response>().apply(apiDSL).request())
                 })
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -128,17 +128,17 @@ open class RequestViewModel : ViewModel() {
         }
     }
 
-    protected fun onApiStart() {
+    protected open fun onApiStart() {
         apiLoading.value = true
     }
 
-    protected fun onApiError(e: Exception?) {
+    protected open fun onApiError(e: Exception?) {
         apiLoading.value = false
         apiException.value = e
 
     }
 
-    protected fun onApiFinally() {
+    protected open fun onApiFinally() {
         apiLoading.value = false
 
     }

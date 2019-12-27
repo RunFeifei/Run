@@ -75,14 +75,8 @@ class TestViewModel : BaseViewModel() {
     val liveData = MutableLiveData<WanResponse<List<Banner>>>()
 
 
-    open fun loadDSL() {
+    fun loadDSL() {
         apiDSL<WanResponse<List<Banner>>> {
-
-            onStart {
-                apiLoading.value = true
-                Log.e("Thread-->onStart", Thread.currentThread().name)
-                false
-            }
 
             onRequest {
                 Log.e("Thread-->onRequest", Thread.currentThread().name)
@@ -90,10 +84,15 @@ class TestViewModel : BaseViewModel() {
             }
 
             onResponse {
-                apiLoading.value = false
                 Log.e("Thread-->onResponse", Thread.currentThread().name)
                 Log.e("onResponse-->", Gson().toJson(it))
                 liveData.value = it
+            }
+
+
+            onStart {
+                Log.e("Thread-->onStart", Thread.currentThread().name)
+                false
             }
 
             onError {
@@ -106,7 +105,7 @@ class TestViewModel : BaseViewModel() {
 
     }
 
-    open fun loadCallback() {
+    fun loadCallback() {
         apiCallback({
             Log.e("Thread-->onRequest", Thread.currentThread().name)
             service.getBanner()
@@ -118,7 +117,7 @@ class TestViewModel : BaseViewModel() {
 
     }
 
-    open fun loadLiveData(): LiveData<Result<WanResponse<List<Banner>>>> {
+    fun loadLiveData(): LiveData<Result<WanResponse<List<Banner>>>> {
         return apiLiveData(context = SupervisorJob() + Dispatchers.Main.immediate, timeoutInMs = 2000) {
             onRequest {
                 Log.e("Thread-->onRequest", Thread.currentThread().name)

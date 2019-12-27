@@ -11,10 +11,6 @@ import kotlinx.coroutines.withContext
  * https://juejin.im/post/5d4d17e5f265da039401f6ea
  */
 
-internal inline fun <Response> api(viewModelScope: CoroutineScope, apiDSL: ViewModelDsl<Response>.() -> Unit) {
-    ViewModelDsl<Response>().apply(apiDSL).launch(viewModelScope)
-}
-
 class ViewModelDsl<Response> {
 
     internal lateinit var request: suspend () -> Response
@@ -70,7 +66,7 @@ class ViewModelDsl<Response> {
 }
 
 
-class LiveDatalDsl<Response> {
+class LiveDataDsl<Response> {
 
     internal lateinit var request: suspend () -> Response
 

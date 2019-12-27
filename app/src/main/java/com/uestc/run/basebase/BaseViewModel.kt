@@ -25,17 +25,15 @@ open class BaseViewModel : RequestViewModel() {
         toastLiveData.postValue(message)
     }
 
-    protected fun onException(throwable: Throwable) {
-        apiException.postValue(throwable)
+    override fun onApiStart() {
+        super.onApiStart()
     }
 
-    protected fun onSubscribe() {
-        showLoading()
+    override fun onApiError(e: Exception?) {
+        super.onApiError(e)
     }
 
-    protected fun onFinally() {
-        hideLoading()
+    override fun onApiFinally() {
+        super.onApiFinally()
     }
-
-
 }
