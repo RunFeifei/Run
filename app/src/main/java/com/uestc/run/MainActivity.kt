@@ -137,12 +137,9 @@ class TestViewModel : BaseViewModel() {
     }
 
     fun loadLiveData(): LiveData<Result<WanResponse<List<Banner>>>> {
-        return apiLiveData(context = SupervisorJob() + Dispatchers.Main.immediate, timeoutInMs = 2000) {
-            onRequest {
-                Log.e("Thread-->onRequest", Thread.currentThread().name)
-                service.getBanner()
-            }
-        }
+        return apiLiveData(request = {
+            service.getBanner()
+        }, context = SupervisorJob() + Dispatchers.Main.immediate, timeoutInMs = 2000)
     }
 
 

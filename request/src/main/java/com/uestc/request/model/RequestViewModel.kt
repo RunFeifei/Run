@@ -108,16 +108,16 @@ open class RequestViewModel : ViewModel() {
     }
 
     protected fun <Response> apiLiveData(
+        request: suspend () -> Response,
         context: CoroutineContext = EmptyCoroutineContext,
-        timeoutInMs: Long = 3000L,
-        apiDSL: LiveDataDsl<Response>.() -> Unit
+        timeoutInMs: Long = 3000L
     ): LiveData<Result<Response>> {
 
         return androidx.lifecycle.liveData(context, timeoutInMs) {
             emit(Result.Start())
             try {
                 emit(withContext(Dispatchers.IO) {
-                    Result.Response(LiveDataDsl<Response>().apply(apiDSL).request())
+                    Result.Response(request())
                 })
             } catch (e: Exception) {
                 e.printStackTrace()
