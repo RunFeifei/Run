@@ -29,7 +29,7 @@ open class RequestViewModel : ViewModel() {
         request: suspend () -> Response,
         onResponse: ((Response) -> Unit),
         onStart: (() -> Boolean)? = null,
-        onError: (() -> Boolean)? = null,
+        onError: ((java.lang.Exception) -> Boolean)? = null,
         onFinally: (() -> Boolean)? = null
     ) {
 
@@ -52,7 +52,7 @@ open class RequestViewModel : ViewModel() {
             }
 
             onError {
-                val override = onError?.invoke()
+                val override = onError?.invoke(it)
                 if (override == null || !override) {
                     onApiError(it)
                 }

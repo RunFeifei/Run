@@ -2,7 +2,6 @@ package com.uestc.run
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -60,7 +59,7 @@ class MainActivity : BaseActivity<TestViewModel>() {
                         hideLoading()
                         it.response.apply {
                             Log.e("onResponse-->", Gson().toJson(this))
-                            showToast(Gson().toJson(it))
+                            showToast(Gson().toJson(this))
                         }
                     }
                     is Result.Start -> {
@@ -69,6 +68,9 @@ class MainActivity : BaseActivity<TestViewModel>() {
                     }
                     is Result.Finally -> {
                         Log.e("Finally-->", Thread.currentThread().name)
+                    }
+                    else -> {
+
                     }
 
                 }
