@@ -108,10 +108,10 @@ open class RequestViewModel : ViewModel() {
     }
 
     protected fun <Response> apiLiveData(
-        request: suspend () -> Response,
         context: CoroutineContext = EmptyCoroutineContext,
-        timeoutInMs: Long = 3000L
-    ): LiveData<Result<Response>> {
+        timeoutInMs: Long = 3000L,
+        request: suspend () -> Response
+        ): LiveData<Result<Response>> {
 
         return androidx.lifecycle.liveData(context, timeoutInMs) {
             emit(Result.Start())
